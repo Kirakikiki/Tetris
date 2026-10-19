@@ -1,0 +1,10 @@
+[gd_resource type="Resource" format=3 uid="uid://c1uked48orbpu"]
+
+[ext_resource type="Texture2D" uid="uid://dopu8p8nw1nn8" path="res://Assets/Orange.png" id="1_6axlv"]
+[ext_resource type="Script" uid="uid://bmmxxt88aqq10" path="res://Scripts/piece_data.gd" id="2_qskdo"]
+
+[resource]
+script = ExtResource("2_qskdo")
+piece_texture = ExtResource("1_6axlv")
+tetromino_type = 1
+spawn_position = Vector2(-24, -456)

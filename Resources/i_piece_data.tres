@@ -1,0 +1,9 @@
+[gd_resource type="Resource" format=3 uid="uid://r2sjlwe8wrqj"]
+
+[ext_resource type="Script" uid="uid://bmmxxt88aqq10" path="res://Scripts/piece_data.gd" id="1_2qgor"]
+[ext_resource type="Texture2D" uid="uid://bvhiy4egr6qkq" path="res://Assets/Cyan.png" id="1_68rr4"]
+
+[resource]
+script = ExtResource("1_2qgor")
+piece_texture = ExtResource("1_68rr4")
+spawn_position = Vector2(-24, -456)

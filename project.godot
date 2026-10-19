@@ -13,7 +13,10 @@ config_version=5
 config/name="Tetris"
 run/main_scene="uid://dud4dyfasaqgw"
 config/features=PackedStringArray("4.7", "Forward Plus")
-config/icon="res://icon.svg"
+
+[autoload]
+
+Shared="*uid://c2w4occpa08qu"
 
 [display]
 

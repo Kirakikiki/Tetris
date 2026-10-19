@@ -1,3 +1,33 @@
 [gd_scene format=3 uid="uid://dud4dyfasaqgw"]
 
+[ext_resource type="Texture2D" uid="uid://dj1olp7v7y623" path="res://Assets/Border.png" id="1_bo1nx"]
+[ext_resource type="Texture2D" uid="uid://dddenph2txf1h" path="res://Assets/Grid.png" id="2_8gbba"]
+
 [node name="main" type="Node" unique_id=1445739241]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2023513813]
+zoom = Vector2(0.5, 0.5)
+
+[node name="Border" type="TextureRect" parent="." unique_id=84249869]
+offset_left = -256.0
+offset_top = -496.0
+offset_right = 1794.0
+offset_bottom = 3474.0
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_bo1nx")
+
+[node name="GridTexture" type="TextureRect" parent="Border" unique_id=304067668]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -961.0
+offset_top = -1921.0
+offset_right = 959.0
+offset_bottom = 1928.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_8gbba")
+stretch_mode = 1

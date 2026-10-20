@@ -1,6 +1,8 @@
 extends Node2D
 
 class_name Tetromino
+signal lock_tetromino(tetromino: Tetromino)
+
 # Límites del tablero en píxeles (izquierda, derecha y suelo)
 var bounds ={ 
 	"min_x": -216,
@@ -15,6 +17,7 @@ var tetromino_data
 var is_next_piece
 # lista de los 4 bloques (Piece) que forman la pieza
 var pieces = []
+var other_tetrominos: Array[Tetromino] = []
 
 @onready var timer = $Timer
 @onready var piece_scene = preload("res://Scenes/piece.tscn")
@@ -65,13 +68,16 @@ func move(direction: Vector2) -> bool:
 		global_position = new_position
 		return true
 	return false
+	
 # calcula la nueva posicion si np devuelve null si el movimiento no es valido
 func calculate_global_position(direction: Vector2, starting_global_position: Vector2):
-
+	if is_colliding_with_other_tetrominos(direction,starting_global_position):
+		return null
 	# Revisa que no se salga del tablero
 	if !is_within_game_bounds(direction, starting_global_position):
 		return null
 	return starting_global_position + direction * pieces[0].get_size().x
+	
 # revisa que todos los bloques sigan dentro de los límites tras moverse
 func is_within_game_bounds(direction: Vector2, starting_global_position: Vector2):
 	for piece in pieces:
@@ -79,13 +85,30 @@ func is_within_game_bounds(direction: Vector2, starting_global_position: Vector2
 		if new_position.x < bounds.get("min_x") || new_position.x > bounds.get("max_x") || new_position.y >= bounds.get("max_y"):
 			return false
 	return true
+	
+# revisa si algún bloque caería sobre un bloque de otra pieza fija
+func is_colliding_with_other_tetrominos(direction: Vector2, starting_global_position: Vector2):
+	for tetromino in other_tetrominos:
+		for tetromino_piece in tetromino.pieces:
+			for piece in pieces:
+				var my_pos = starting_global_position + piece.position + direction * piece.get_size().x
+				var other_pos = tetromino.global_position + tetromino_piece.position
+				if my_pos.is_equal_approx(other_pos):
+					return true
+	return false
 
 # baja la pieza hasta el fondo
 func hard_drop():
 	while(move(Vector2.DOWN)):
 		continue
-		
+	lock()
+
+func lock():
+	timer.stop()
+	lock_tetromino.emit(self)
+	set_process_input(false)
 #cada vez que el timer termina, la pieza baja una casilla
 func _on_timer_timeout():
-	move(Vector2.DOWN)
-	
+	var should_lock = !move(Vector2.DOWN)
+	if should_lock:
+		lock()

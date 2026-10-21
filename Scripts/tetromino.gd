@@ -9,6 +9,7 @@ var bounds ={
 	"max_x": 216,
 	"max_y": 457
 	 }
+var rotation_index = 0
 # tabla de wall kicks que usa esta pieza (I o JLOSTZ)
 var wall_kicks
 # datos de la pieza (.tres), textura, tipo y posición de aparición
@@ -56,9 +57,9 @@ func _input(event):
 	elif Input.is_action_just_pressed("hard_drop"):
 		hard_drop()
 	elif Input.is_action_just_pressed("rotate_left"):
-		pass
+		rotate_tetromino(-1)
 	elif Input.is_action_just_pressed("rotate_right"):
-		pass
+		rotate_tetromino(1)
 		
 
 #  mover la pieza, devuelve true si pudo moverse
@@ -97,6 +98,52 @@ func is_colliding_with_other_tetrominos(direction: Vector2, starting_global_posi
 					return true
 	return false
 
+func rotate_tetromino(direction: int):
+	var original_rotation_index = rotation_index
+	if tetromino_data.tetromino_type == Shared.Tetromino.O:
+		return
+
+	apply_rotation(direction)
+	
+	rotation_index = wrap(rotation_index + direction, 0, 4)
+	
+	if !test_wall_kicks(rotation_index, direction):
+		rotation_index = original_rotation_index
+		apply_rotation(-direction)
+	
+func test_wall_kicks(rotation_index: int, rotation_direction: int):
+	var wall_kick_index = get_wall_kick_index(rotation_index, rotation_direction)
+	for i in wall_kicks[0].size():
+		var translation = wall_kicks[wall_kick_index][i]
+		if move(translation):
+			return true
+	return false
+
+func get_wall_kick_index(rotation_index: int, rotation_direction):
+	var wall_kick_index = rotation_index * 2
+	if rotation_direction < 0:
+		wall_kick_index -= 1
+
+	return wrap(wall_kick_index, 0, wall_kicks.size())
+
+func apply_rotation(direction: int):
+	
+	var rotation_matrix = Shared.clockwise_rotation_matrix if direction == 1 else Shared.counter_clockwise_rotation_matrix
+	
+	var tetromino_cells = Shared.cells[tetromino_data.tetromino_type]
+
+	for i in tetromino_cells.size():
+		var cell = tetromino_cells[i]
+		var x
+		var y
+		var coordinates = rotation_matrix[0] * cell.x + rotation_matrix[1]* cell.y
+		tetromino_cells[i] = coordinates
+		
+
+	for i in pieces.size():
+		var piece = pieces[i]
+		piece.position = tetromino_cells[i] * piece.get_size()
+
 # baja la pieza hasta el fondo
 func hard_drop():
 	while(move(Vector2.DOWN)):
@@ -107,6 +154,7 @@ func lock():
 	timer.stop()
 	lock_tetromino.emit(self)
 	set_process_input(false)
+	
 #cada vez que el timer termina, la pieza baja una casilla
 func _on_timer_timeout():
 	var should_lock = !move(Vector2.DOWN)

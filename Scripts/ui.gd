@@ -1,4 +1,5 @@
 extends CanvasLayer
+class_name UI
 @onready var center_container: CenterContainer = $CenterContainer
 
 func show_game_over():

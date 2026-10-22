@@ -18,8 +18,12 @@ var tetromino_data
 var is_next_piece
 # lista de los 4 bloques (Piece) que forman la pieza
 var pieces = []
-var other_tetrominos: Array[Tetromino] = []
+# bloques sueltos (Piece) ya fijados en el tablero; los llena Board
+var other_tetrominoes_pieces = []
+# sombra que muestra dónde caerá la pieza
 var ghost_tetromino
+# segundos entre cada caída (la asigna Board)
+var fall_time = 1.0
 
 @onready var timer = $Timer
 @onready var piece_scene = preload("res://Scenes/piece.tscn")
@@ -29,8 +33,7 @@ var ghost_tetromino
 var tetromino_cells
 func _ready():
 	# obtiene las celdas según el tipo de pieza
-	tetromino_cells = Shared.cells[tetromino_data.tetromino_type]
-
+	tetromino_cells = Shared.cells[tetromino_data.tetromino_type].duplicate()
 	# crea un bloque por cada celda
 	for cell in tetromino_cells:
 		var piece = piece_scene.instantiate() as Piece
@@ -43,36 +46,39 @@ func _ready():
 	# solo çla pieza activa se coloca y recibe wall kicks
 	if is_next_piece == false:
 		position = tetromino_data.spawn_position
+		# aplica la velocidad de caída y reinicia el timer con ella
+		timer.start(fall_time)
 		wall_kicks = Shared.wall_kicks_i if tetromino_data.tetromino_type == Shared.Tetromino.I else Shared.wall_kicks_jlostz
-		ghost_tetromino = ghost_tetromino_scene.instantiate() as Ghosttetromino
+		ghost_tetromino = ghost_tetromino_scene.instantiate() as GhostTetromino
 		ghost_tetromino.tetromino_data = tetromino_data
 		get_tree().root.add_child.call_deferred(ghost_tetromino)
 		hard_drop_ghost.call_deferred()
+	else:
+		# la vista previa no cae: se detiene su timer
+		timer.stop()
 		
+# calcula dónde caería la pieza y coloca la sombra ahí
 func hard_drop_ghost():
-	var final_hard_drop_position
-	var ghost_position_update = calculate_global_position(Vector2.DOWN, global_position)
-	
-	while ghost_position_update != null:
-		ghost_position_update = calculate_global_position(Vector2.DOWN, ghost_position_update)
-		if ghost_position_update != null:
-			final_hard_drop_position = ghost_position_update
+	if !is_instance_valid(ghost_tetromino):
+		return
+	var final_hard_drop_position = global_position
+	var next_position = calculate_global_position(Vector2.DOWN, final_hard_drop_position)
 
-	if final_hard_drop_position != nutl:
-		var children = get_children().filter(func (c): return c is Piece)
+	# sigue bajando mientras la posición sea válida
+	while next_position != null:
+			final_hard_drop_position = next_position
+			next_position = calculate_global_position(Vector2.DOWN, final_hard_drop_position)
 
-		var pieces_position = []
+	# copia la posición local de cada bloque para dibujar la misma forma
+	var pieces_position = []
+	for piece in pieces:
+		pieces_position.append(piece.position)
 
-		for i in children.size():
-			var piece_position = children[i].position
-			pieces_position.append(piece_position)
-
-		ghost_tetromino.set_ghost_tetromino(final_hard_drop_position, pieces_position)
-
+	ghost_tetromino.set_ghost_tetromino(final_hard_drop_position, pieces_position)
 	return final_hard_drop_position
 
 # lee los controles del jugador
-func _input(event):
+func _input(_event):
 	# la pieza de vista previa no debe responder a controles
 	if is_next_piece:
 		return
@@ -95,6 +101,7 @@ func move(direction: Vector2) -> bool:
 	var new_position = calculate_global_position(direction, global_position)
 	if new_position != null:
 		global_position = new_position
+	# al moverse de lado, la sombra se recalcula (al bajar no cambia)
 		if direction != Vector2.DOWN:
 			hard_drop_ghost.call_deferred()
 		return true
@@ -119,60 +126,62 @@ func is_within_game_bounds(direction: Vector2, starting_global_position: Vector2
 	
 # revisa si algún bloque caería sobre un bloque de otra pieza fija
 func is_colliding_with_other_tetrominos(direction: Vector2, starting_global_position: Vector2):
-	for tetromino in other_tetrominos:
-		var tetromino_pieces = tetromino.get_children().filter(func(c): return c is Piece)
-		for tetromino_piece in tetromino.pieces:
-			for piece in pieces:
-				var my_pos = starting_global_position + piece.position + direction * piece.get_size().x
-				var other_pos = tetromino.global_position + tetromino_piece.position
-				if my_pos.is_equal_approx(other_pos):
-					return true
+	for other_piece in other_tetrominoes_pieces:
+		for piece in pieces:
+			# posición destino de mi bloque contra la posición del bloque fijo
+			var my_pos = starting_global_position + piece.position + direction * piece.get_size().x
+			if my_pos.is_equal_approx(other_piece.global_position):
+				return true
 	return false
 
+# rota la pieza
 func rotate_tetromino(direction: int):
 	var original_rotation_index = rotation_index
+	# la pieza o no necesita rotar
 	if tetromino_data.tetromino_type == Shared.Tetromino.O:
 		return
-
+		
+	# gira los bloques y actualiza el estado de rotación (0 a 3)
 	apply_rotation(direction)
 	
 	rotation_index = wrap(rotation_index + direction, 0, 4)
 	
+	# si ningún wall kick funciona, vuelve al estado anterior
 	if !test_wall_kicks(rotation_index, direction):
 		rotation_index = original_rotation_index
 		apply_rotation(-direction)
 
 	hard_drop_ghost.call_deferred()
 	
-func test_wall_kicks(rotation_index: int, rotation_direction: int):
-	var wall_kick_index = get_wall_kick_index(rotation_index, rotation_direction)
+# prueba los 5 desplazamientos del wall kick, true si alguno funciona
+func test_wall_kicks(new_rotation_index: int, rotation_direction: int):
+	var wall_kick_index = get_wall_kick_index(new_rotation_index, rotation_direction)
 	for i in wall_kicks[0].size():
 		var translation = wall_kicks[wall_kick_index][i]
+		# move() solo mueve si la posición es válida
 		if move(translation):
 			return true
 	return false
 
-func get_wall_kick_index(rotation_index: int, rotation_direction):
-	var wall_kick_index = rotation_index * 2
+# elige la fila de la tabla de wall kicks según el giro realizado
+func get_wall_kick_index(new_rotation_index: int, rotation_direction):
+	var wall_kick_index = new_rotation_index * 2
 	if rotation_direction < 0:
 		wall_kick_index -= 1
 
 	return wrap(wall_kick_index, 0, wall_kicks.size())
 
+# gira las celdas 90° con la matriz de rotación y recoloca los bloques
 func apply_rotation(direction: int):
-	
+	# horaria (1) o antihoraria (-1)
 	var rotation_matrix = Shared.clockwise_rotation_matrix if direction == 1 else Shared.counter_clockwise_rotation_matrix
-	
-	var tetromino_cells = Shared.cells[tetromino_data.tetromino_type]
-
+	# calcula la nueva posición de cada celda
 	for i in tetromino_cells.size():
 		var cell = tetromino_cells[i]
-		var x
-		var y
 		var coordinates = rotation_matrix[0] * cell.x + rotation_matrix[1]* cell.y
 		tetromino_cells[i] = coordinates
 		
-
+	# mueve cada bloque a su nueva celda
 	for i in pieces.size():
 		var piece = pieces[i]
 		piece.position = tetromino_cells[i] * piece.get_size()
@@ -183,14 +192,20 @@ func hard_drop():
 		continue
 	lock()
 
+# fija la pieza: detiene la caída, avisa al Board y quita la sombra
 func lock():
 	timer.stop()
 	lock_tetromino.emit(self)
 	set_process_input(false)
-	ghost_tetromino.queue_free()
+	# evita error si no hay sombra
+	if is_instance_valid(ghost_tetromino):
+		ghost_tetromino.queue_free()
 	
 #cada vez que el timer termina, la pieza baja una casilla
 func _on_timer_timeout():
+	# la vista previa no debe caer
+	if is_next_piece:
+		return
 	var should_lock = !move(Vector2.DOWN)
 	if should_lock:
 		lock()

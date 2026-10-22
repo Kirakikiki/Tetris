@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://dud4dyfasaqgw"]
+
+[ext_resource type="Texture2D" uid="uid://dj1olp7v7y623" path="res://Assets/Border.png" id="1_bo1nx"]
+[ext_resource type="Texture2D" uid="uid://dddenph2txf1h" path="res://Assets/Grid.png" id="2_8gbba"]
+[ext_resource type="Script" uid="uid://cau8wm6g34x66" path="res://Scripts/piece_spawner.gd" id="3_kry3j"]
+[ext_resource type="Script" uid="uid://ddl1qwfwr7m41" path="res://Scripts/board.gd" id="4_21xkr"]
+[ext_resource type="PackedScene" uid="uid://dbw4eoirce3ii" path="res://Scenes/tetromino.tscn" id="5_6bp64"]
+[ext_resource type="PackedScene" uid="uid://b2y856qjueva5" path="res://Scenes/ui.tscn" id="6_21xkr"]
+[ext_resource type="AudioStream" uid="uid://c6fe1owej6ssd" path="res://Assets/tetris-gameboy.mp3" id="7_6bp64"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jxero"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.14117648, 0.16078432, 0.18431373, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(0.09411765, 0.105882354, 0.12156863, 1)
+corner_detail = 12
+
+[node name="main" type="Node" unique_id=1445739241]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2023513813]
+zoom = Vector2(0.5, 0.5)
+
+[node name="Border" type="TextureRect" parent="." unique_id=84249869]
+offset_left = -256.0
+offset_top = -496.0
+offset_right = 1794.0
+offset_bottom = 3474.0
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_bo1nx")
+
+[node name="GridTexture" type="TextureRect" parent="Border" unique_id=304067668]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -961.0
+offset_top = -1921.0
+offset_right = 959.0
+offset_bottom = 1928.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_8gbba")
+stretch_mode = 1
+
+[node name="Board" type="Node" parent="." unique_id=1884489450]
+script = ExtResource("4_21xkr")
+tetromino_scene = ExtResource("5_6bp64")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=135973307]
+custom_minimum_size = Vector2(150, 90)
+offset_left = -90.0
+offset_top = -600.0
+offset_right = 60.0
+offset_bottom = -510.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_jxero")
+
+[node name="Control" type="Control" parent="PanelContainer" unique_id=1644809579]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/Control" unique_id=1913879478]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -65.0
+offset_right = 65.0
+offset_bottom = 28.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 20
+text = "SIGUIENTE:"
+horizontal_alignment = 1
+
+[node name="PieceSpawner" type="Node" parent="." unique_id=1839857229]
+script = ExtResource("3_kry3j")
+
+[node name="UI" parent="." unique_id=843268622 instance=ExtResource("6_21xkr")]
+
+[node name="Music" type="AudioStreamPlayer2D" parent="." unique_id=2083069301]
+stream = ExtResource("7_6bp64")
+autoplay = true

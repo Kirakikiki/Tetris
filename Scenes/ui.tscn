@@ -28,7 +28,9 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=960345879]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.8454651, 0, 0.14972427, 1)
 text = "GAME OVER"
+horizontal_alignment = 1
 
 [node name="Button" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1661234879]
 layout_mode = 2

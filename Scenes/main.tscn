@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://cau8wm6g34x66" path="res://Scripts/piece_spawner.gd" id="3_kry3j"]
 [ext_resource type="Script" uid="uid://ddl1qwfwr7m41" path="res://Scripts/board.gd" id="4_21xkr"]
 [ext_resource type="PackedScene" uid="uid://dbw4eoirce3ii" path="res://Scenes/tetromino.tscn" id="5_6bp64"]
+[ext_resource type="PackedScene" uid="uid://b2y856qjueva5" path="res://Scenes/ui.tscn" id="6_21xkr"]
 
 [node name="main" type="Node" unique_id=1445739241]
 
@@ -35,9 +36,19 @@ grow_vertical = 2
 texture = ExtResource("2_8gbba")
 stretch_mode = 1
 
-[node name="PieceSpawner" type="Node" parent="." unique_id=1839857229]
-script = ExtResource("3_kry3j")
-
 [node name="Board" type="Node" parent="." unique_id=1884489450]
 script = ExtResource("4_21xkr")
 tetromino_scene = ExtResource("5_6bp64")
+
+[node name="PieceSpawner" type="Node" parent="." unique_id=1839857229]
+script = ExtResource("3_kry3j")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=135973307]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="PanelContainer" unique_id=1913879478]
+layout_mode = 2
+text = "SIGUIENTE:"
+
+[node name="UI" parent="." unique_id=843268622 instance=ExtResource("6_21xkr")]

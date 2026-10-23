@@ -86,3 +86,22 @@ script = ExtResource("3_kry3j")
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1984111205]
 stream = ExtResource("7_6bp64")
 autoplay = true
+
+[node name="score" type="CanvasLayer" parent="." unique_id=1835677559]
+layer = 10
+
+[node name="ScoreLabel" type="Label" parent="score" unique_id=463644172]
+offset_right = 155.0
+offset_bottom = 80.0
+theme_override_font_sizes/font_size = 16
+text = "puntos:"
+
+[node name="LineLabel" type="Label" parent="score" unique_id=763677080]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -127.0
+offset_bottom = 80.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 16
+text = "Lineas:"

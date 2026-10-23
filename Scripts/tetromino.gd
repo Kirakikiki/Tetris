@@ -31,7 +31,7 @@ var fall_time = 1.0
 
 # posiciones relativas de los 4 bloques de esta pieza
 var tetromino_cells
-func _ready():
+func _ready(): 
 	# obtiene las celdas según el tipo de pieza
 	tetromino_cells = Shared.cells[tetromino_data.tetromino_type].duplicate()
 	# crea un bloque por cada celda

@@ -5,6 +5,9 @@ class_name Board
 signal tetromino_locked
 signal game_over
 @onready var panel_container = $"../PanelContainer"
+@onready var line_container = $"../score/LineLabel"
+@onready var score_container = $"../score/ScoreLabel"
+
 # Escena de una "línea" (fila): un nodo que agrupa los bloques de la misma altura
 @onready var line_scene = preload("res://Scenes/line.tscn")
 @export var tetromino_scene: PackedScene
@@ -17,6 +20,9 @@ var tetrominos:Array[Tetromino] = []
 var lines_cleared = 0
 # segundos que tarda la pieza en bajar una casilla
 var fall_time = BASE_FALL_TIME
+
+var score = 0 #puntaje total
+
 # tiempo inicial (ponlo igual al Wait Time actual de tu Timer)
 const BASE_FALL_TIME = 1.0
 # la caída nunca será más rápida que esto
@@ -24,6 +30,8 @@ const MIN_FALL_TIME = 0.5
 # cada cuántas líneas sube el nivel
 const LINES_PER_LEVEL = 1
 
+func _ready():
+	update_score_label()
 
 # Crea una pieza (type: I, O, T...; is_next_piece: true si es la vista previa)
 func spawn_tetromino(type: Shared.Tetromino, is_next_piece, spawn_position):
@@ -107,6 +115,7 @@ func get_lines():
 
 # PASO 2: revisa cada fila; si está llena (10 bloques), la elimina
 func remove_full_lines():
+	var linesThisPiece = 0
 	for line in get_lines():
 		# is_line_full cuenta los bloques de la fila (está en line.gd)
 		if line.is_line_full(COLUMN_COUNT):
@@ -116,7 +125,9 @@ func remove_full_lines():
 			line.free()
 			# PASO 5: suma la línea y recalcula la velocidad
 			lines_cleared += 1
+			linesThisPiece += 1
 			update_fall_time()
+	_add_score(linesThisPiece)
 
 # calcula el tiempo de caída según el nivel actual
 func update_fall_time():
@@ -135,3 +146,12 @@ func get_all_pieces():
 	for line in get_lines():
 		pieces.append_array(line.get_children())
 	return pieces
+
+func _add_score(lines):
+	if lines >0:
+		score += 200 * lines - 100
+		update_score_label()
+
+func update_score_label ():
+	score_container.text = "Puntos: " + str(score)
+	line_container.text = "Lineas eliminadas:" + str(lines_cleared)

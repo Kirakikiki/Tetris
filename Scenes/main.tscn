@@ -55,11 +55,11 @@ script = ExtResource("4_21xkr")
 tetromino_scene = ExtResource("5_6bp64")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=135973307]
-custom_minimum_size = Vector2(150, 110)
+custom_minimum_size = Vector2(150, 90)
 offset_left = -73.0
-offset_top = -612.0
+offset_top = -604.0
 offset_right = 77.0
-offset_bottom = -502.0
+offset_bottom = -510.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_jxero")
 
 [node name="Control" type="Control" parent="PanelContainer" unique_id=1644809579]
@@ -82,8 +82,8 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(150, 90)
 offset_left = -235.0
 offset_top = -604.0
-offset_right = -85.0
-offset_bottom = -514.0
+offset_right = -80.0
+offset_bottom = -510.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_jxero")
 
 [node name="Control" type="Control" parent="PanelContainer2" unique_id=402031572]
@@ -104,8 +104,8 @@ text = "PUNTOS:"
 
 [node name="PanelContainer3" type="PanelContainer" parent="." unique_id=977053420]
 custom_minimum_size = Vector2(150, 90)
-offset_left = 88.0
-offset_top = -601.0
+offset_left = 82.0
+offset_top = -603.0
 offset_right = 238.0
 offset_bottom = -511.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_jxero")

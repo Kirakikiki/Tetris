@@ -5,8 +5,8 @@ class_name Board
 signal tetromino_locked
 signal game_over
 @onready var panel_container = $"../PanelContainer"
-@onready var line_container = $"../score/LineLabel"
-@onready var score_container = $"../score/ScoreLabel"
+@onready var score_label = $"../PanelContainer2/Control/ScoreLabel"
+@onready var line_label = $"../PanelContainer3/Control/LineLabel"
 
 # Escena de una "línea" (fila): un nodo que agrupa los bloques de la misma altura
 @onready var line_scene = preload("res://Scenes/line.tscn")
@@ -152,6 +152,6 @@ func _add_score(lines):
 		score += 200 * lines - 100
 		update_score_label()
 
-func update_score_label ():
-	score_container.text = "Puntos: " + str(score)
-	line_container.text = "Lineas eliminadas:" + str(lines_cleared)
+func update_score_label():
+	score_label.text = "Puntos: " + str(score)
+	line_label.text = "Lineas: " + str(lines_cleared)
